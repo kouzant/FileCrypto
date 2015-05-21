@@ -7,15 +7,31 @@ import org.apache.commons.cli.Option;
 import org.apache.commons.cli.Options;
 import org.apache.commons.cli.ParseException;
 
+/**
+ * Contruct and parse the argument list
+ * 
+ * @author Antonis Kouzoupis
+ *
+ */
 public class CommandParser {
 	private String[] args;
 	private Options options;
 
+	/**
+	 * Constructor
+	 * @param args Command line arguments list
+	 */
 	public CommandParser(String[] args) {
 		this.args = args;
 		options = new Options();
 	}
 
+	/**
+	 * Parse the arguments list
+	 * @return command line arguments
+	 * @throws ParseException
+	 * @see CommandLine
+	 */
 	public CommandLine parseArgs() throws ParseException {
 
 		Option help = new Option(ArgumentsName.HELP_S, ArgumentsName.HELP_L,
@@ -47,6 +63,11 @@ public class CommandParser {
 		return cmd;
 	}
 
+	/**
+	 * Get available options
+	 * @return Available options
+	 * @see Options
+	 */
 	public Options getOptions() {
 		return options;
 	}

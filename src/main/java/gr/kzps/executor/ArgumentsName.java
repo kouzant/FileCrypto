@@ -1,5 +1,10 @@
 package gr.kzps.executor;
 
+/**
+ * Name of the available options
+ * @author Antonis Kouzoupis
+ *
+ */
 public class ArgumentsName {
 	public static final String ENCRYPT_L = "encrypt";
 	public static final String ENCRYPT_S = "e";

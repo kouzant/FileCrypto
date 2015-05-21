@@ -4,6 +4,11 @@ import org.apache.commons.cli.CommandLine;
 import org.apache.commons.cli.HelpFormatter;
 import org.apache.commons.cli.ParseException;
 
+/**
+ * Main class of program
+ * @author Antonis Kouzoupis
+ *
+ */
 public class Executor {
 
 	public static void main(String[] args) {
@@ -37,6 +42,13 @@ public class Executor {
 		}
 	}
 
+	/**
+	 * Parse command line arguments and get directory to apply crypto operation
+	 * Default is the current directory
+	 * @param cmd The parsed command line arguments
+	 * @param dirType It can be either the input or the output directory
+	 * @return Parsed directory
+	 */
 	private static String getCryptoDir(CommandLine cmd, String dirType) {
 		if (cmd.hasOption(dirType)) {
 			return cmd.getOptionValue(dirType);
