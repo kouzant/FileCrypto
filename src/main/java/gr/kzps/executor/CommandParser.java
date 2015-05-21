@@ -1,0 +1,53 @@
+package gr.kzps.executor;
+
+import org.apache.commons.cli.CommandLine;
+import org.apache.commons.cli.CommandLineParser;
+import org.apache.commons.cli.DefaultParser;
+import org.apache.commons.cli.Option;
+import org.apache.commons.cli.Options;
+import org.apache.commons.cli.ParseException;
+
+public class CommandParser {
+	private String[] args;
+	private Options options;
+
+	public CommandParser(String[] args) {
+		this.args = args;
+		options = new Options();
+	}
+
+	public CommandLine parseArgs() throws ParseException {
+
+		Option help = new Option(ArgumentsName.HELP_S, ArgumentsName.HELP_L,
+				false, "Print help message");
+		Option version = new Option(ArgumentsName.VERSION_S,
+				ArgumentsName.VERSION_L, false, "Print version");
+		Option encrypt = new Option(ArgumentsName.ENCRYPT_S,
+				ArgumentsName.ENCRYPT_L, false, "Encrypt operation");
+		Option decrypt = new Option(ArgumentsName.DECRYPT_S,
+				ArgumentsName.DECRYPT_L, false, "Decrypt operation");
+
+		Option inputDir = Option.builder(ArgumentsName.INPUTDIR_S)
+				.longOpt(ArgumentsName.INPUTDIR_L).hasArg()
+				.desc("input directory").build();
+		Option outputDir = Option.builder(ArgumentsName.OUTPUTDIR_S)
+				.longOpt(ArgumentsName.OUTPUTDIR_L).hasArg()
+				.desc("output directory").build();
+
+		options.addOption(help);
+		options.addOption(version);
+		options.addOption(encrypt);
+		options.addOption(decrypt);
+		options.addOption(inputDir);
+		options.addOption(outputDir);
+
+		CommandLineParser parser = new DefaultParser();
+		CommandLine cmd = parser.parse(options, args);
+
+		return cmd;
+	}
+
+	public Options getOptions() {
+		return options;
+	}
+}
