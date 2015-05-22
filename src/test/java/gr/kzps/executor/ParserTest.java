@@ -17,7 +17,7 @@ public class ParserTest {
 	private static CommandLine cmd;
 	
 	@BeforeClass
-	public static void Before() {
+	public static void before() {
 		String[] args = {"-e", "-i input/test", "-o output/test", "-h", "--version"};
 		
 		parser = new CommandParser(args);

@@ -1,5 +1,11 @@
 package gr.kzps.executor;
 
+import java.io.FileNotFoundException;
+import java.nio.file.NotDirectoryException;
+
+import gr.kzps.crypto.CryptoOperation;
+import gr.kzps.filesystem.FilesystemOperations;
+
 import org.apache.commons.cli.CommandLine;
 import org.apache.commons.cli.HelpFormatter;
 import org.apache.commons.cli.ParseException;
@@ -31,6 +37,16 @@ public class Executor {
 				System.out.println("Encrypt operation");
 				inputDir = getCryptoDir(cmd, ArgumentsName.INPUTDIR_L);
 				outputDir = getCryptoDir(cmd, ArgumentsName.OUTPUTDIR_L);
+				
+				try {
+					Dispatcher.dispatch(CryptoOperation.ENCRYPT	, inputDir, outputDir);
+				} catch (NotDirectoryException e) {
+					// TODO Auto-generated catch block
+					e.printStackTrace();
+				} catch (FileNotFoundException e) {
+					// TODO Auto-generated catch block
+					e.printStackTrace();
+				}
 				System.out.println("inputDir: " + inputDir);
 				System.out.println("outputDir: " + outputDir);
 			} else if (cmd.hasOption(ArgumentsName.VERSION_L)) {
