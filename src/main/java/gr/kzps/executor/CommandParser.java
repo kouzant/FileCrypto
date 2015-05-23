@@ -49,6 +49,9 @@ public class CommandParser {
 		Option outputDir = Option.builder(ArgumentsName.OUTPUTDIR_S)
 				.longOpt(ArgumentsName.OUTPUTDIR_L).hasArg()
 				.desc("output directory").build();
+		Option cryptoKey = Option.builder(ArgumentsName.KEY_S)
+				.longOpt(ArgumentsName.KEY_L).hasArg()
+				.desc("encryption/decryption key").build();
 
 		options.addOption(help);
 		options.addOption(version);
@@ -56,6 +59,7 @@ public class CommandParser {
 		options.addOption(decrypt);
 		options.addOption(inputDir);
 		options.addOption(outputDir);
+		options.addOption(cryptoKey);
 
 		CommandLineParser parser = new DefaultParser();
 		CommandLine cmd = parser.parse(options, args);

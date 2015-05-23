@@ -23,13 +23,13 @@ public class FilesystemOperations {
 		List<File> inputFiles = new ArrayList<File>();
 
 		if (!inputDirectory.isDirectory()) {
-			throw new NotDirectoryException(inputDirectory.getName());
+			throw new NotDirectoryException(inputDirectory.getName() + "is not a directory");
 		}
 
 		if (inputDirectory.exists()) {
 			fileArray = inputDirectory.listFiles();
 		} else {
-			throw new FileNotFoundException();
+			throw new FileNotFoundException("Directory: " + inputDirectory + "does not exist");
 		}
 		
 		for (int i = 0; i < fileArray.length; i++) {

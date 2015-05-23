@@ -23,4 +23,7 @@ public class ArgumentsName {
 
 	public static final String VERSION_L = "version";
 	public static final String VERSION_S = "v";
+	
+	public static final String KEY_L = "key";
+	public static final String KEY_S = "k";
 }

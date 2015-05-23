@@ -1,6 +1,7 @@
 package gr.kzps.executor;
 
 import gr.kzps.crypto.CryptoOperation;
+import gr.kzps.exceptions.NoCryptoKeyProvided;
 
 import java.io.FileNotFoundException;
 import java.nio.file.NotDirectoryException;
@@ -15,9 +16,10 @@ public class DispatcherTest {
 	public void testNumberOfLists() {
 		String input = "/home/antonis/Tobii/FileCrypto/input_test";
 		String output = "/home/antonis/Tobii/FileCrypto/output_test";
+		String cryptoKey = "/home/antonis/Tobii/FileCrypto/key";
 		
 		try {
-			int lists = Dispatcher.dispatch(CryptoOperation.DECRYPT, input, output);
+			int lists = Dispatcher.dispatch(CryptoOperation.DECRYPT, input, output, cryptoKey);
 			
 			int threads = Runtime.getRuntime().availableProcessors() * 2;
 			
@@ -28,6 +30,10 @@ public class DispatcherTest {
 		} catch (FileNotFoundException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
+		} catch (InterruptedException ex) {
+			ex.printStackTrace();
+		} catch (NoCryptoKeyProvided ex) {
+			ex.printStackTrace();
 		}
 	}
 }
