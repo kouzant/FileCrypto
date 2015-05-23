@@ -1,6 +1,7 @@
 package gr.kzps.executor;
 
 import gr.kzps.crypto.CryptoOperation;
+import gr.kzps.crypto.Decrypt;
 import gr.kzps.crypto.Encrypt;
 import gr.kzps.exceptions.NoCryptoKeyProvided;
 import gr.kzps.filesystem.FilesystemOperations;
@@ -41,8 +42,12 @@ public class Dispatcher {
 		if (inputFiles.size() < 20) {
 			// Dispatch all files to one processor
 			System.out.println("Dispatch to one thread");
-			// TODO Dispatch list to worker thread
-			tasks.add(new Encrypt(inputFiles, outputDirectory, key));
+			// Dispatch list to worker thread
+			if (operation.equals(CryptoOperation.ENCRYPT)) {
+				tasks.add(new Encrypt(inputFiles, outputDirectory, key));
+			} else {
+				tasks.add(new Decrypt(inputFiles, outputDirectory, key));
+			}
 
 			dispatchedLists++;
 		} else {
@@ -51,10 +56,6 @@ public class Dispatcher {
 			step++;
 
 			Integer index = 0;
-
-			for (File file : inputFiles) {
-				System.err.println(file.getAbsolutePath());
-			}
 
 			while (index < inputFiles.size()) {
 				List<File> dispatchList;
@@ -70,17 +71,26 @@ public class Dispatcher {
 				dispatchedLists++;
 				index += step;
 
-				// TODO Dispatch lists to worker threads
-				tasks.add(new Encrypt(dispatchList, outputDirectory, key));
+				// Dispatch lists to worker threads
+				if (operation.equals(CryptoOperation.ENCRYPT)) {
+					tasks.add(new Encrypt(dispatchList, outputDirectory, key));
+				} else {
+					tasks.add(new Decrypt(dispatchList, outputDirectory, key));
+				}
 			}
 		}
 
+		// Spawn threads
 		tasks.stream().forEach(x -> execService.execute(x));
 
 		execService.shutdown();
 
 		if (execService.awaitTermination(5, TimeUnit.MINUTES)) {
-			System.out.println("Encryption terminated!");
+			if (operation.equals(CryptoOperation.ENCRYPT)) {
+				System.out.println("Encryption is over!");
+			} else {
+				System.out.println("Decryption is over!");
+			}
 		}
 
 		return dispatchedLists;

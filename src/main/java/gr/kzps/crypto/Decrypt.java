@@ -7,9 +7,11 @@ import java.io.IOException;
 import java.security.InvalidKeyException;
 import java.security.KeyFactory;
 import java.security.NoSuchAlgorithmException;
+import java.security.PrivateKey;
 import java.security.PublicKey;
 import java.security.Security;
 import java.security.spec.InvalidKeySpecException;
+import java.security.spec.PKCS8EncodedKeySpec;
 import java.security.spec.X509EncodedKeySpec;
 import java.util.List;
 
@@ -20,53 +22,53 @@ import javax.crypto.NoSuchPaddingException;
 
 import org.bouncycastle.jce.provider.BouncyCastleProvider;
 
-public class Encrypt implements Runnable {
-	private final List<File> encryptList;
+public class Decrypt implements Runnable {
+	private final List<File> decryptList;
 	private final String outputDir;
-	private PublicKey key = null;
+	private PrivateKey key = null;
 	private FilesystemOperations fso;
 	
-	public Encrypt(List<File> encryptList, String outputDir, byte[] cryptoKey) {
-		this.encryptList = encryptList;
+	public Decrypt(List<File> decryptList, String outputDir, byte[] cryptoKey) {
+		this.decryptList = decryptList;
 		this.outputDir = outputDir;
 		this.fso = new FilesystemOperations();
 		
 		Security.addProvider(new BouncyCastleProvider());
 		
-		X509EncodedKeySpec keySpec = new X509EncodedKeySpec(cryptoKey);
+		PKCS8EncodedKeySpec keySpec = new PKCS8EncodedKeySpec(cryptoKey);
 		try {
 			KeyFactory keyFactory = KeyFactory.getInstance("RSA");
-			key = keyFactory.generatePublic(keySpec);
+			key = keyFactory.generatePrivate(keySpec);
 		} catch (NoSuchAlgorithmException ex) {
 			ex.printStackTrace();
 		} catch (InvalidKeySpecException e) {
 			e.printStackTrace();
 		}
 	}
-	
 	@Override
 	public void run() {
-		encryptList.stream().forEach(x -> {
-			String newFileName = x.getName().concat(".enc");
+		decryptList.stream().forEach(x -> {
+			// Replace ".enc" with ".dec" for decrypted files
+			String newFileName = x.getName().substring(0, x.getName().length() - 3).concat("dec");
 			try {
 				String absoluteName = outputDir.concat("/").concat(newFileName);
-				fso.writeBytesToFile(new File(absoluteName), encrypt(x));
+				fso.writeBytesToFile(new File(absoluteName), decrypt(x));
 			} catch (IOException ex) {
 				ex.printStackTrace();
 			}
 		});
 	}
-	
-	private byte[] encrypt(File file) {
-		byte[] ciphertext = null;
+
+	private byte[] decrypt(File file) {
+		byte[] plaintext = null;
 		
 		try {
 			Cipher cipher = Cipher.getInstance("RSA/NONE/PKCS1Padding");
-			cipher.init(Cipher.ENCRYPT_MODE, key);
+			cipher.init(Cipher.DECRYPT_MODE, key);
 			byte[] data = fso.readFileContent(file);
-			ciphertext = cipher.doFinal(data);
+			plaintext = cipher.doFinal(data);
 			
-			return ciphertext;
+			return plaintext;
 		} catch (NoSuchAlgorithmException ex) {
 			ex.printStackTrace();
 		} catch (NoSuchPaddingException ex) {
@@ -81,7 +83,6 @@ public class Encrypt implements Runnable {
 			ex.printStackTrace();
 		}
 		
-		return ciphertext;
+		return plaintext;
 	}
-
 }
