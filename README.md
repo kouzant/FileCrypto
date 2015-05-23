@@ -55,10 +55,11 @@ of keys follow this micro tutorial
 
 
 > - First generate a private key
+>
 > **$ openssl genrsa -out "keys/private_key.pem" 2048**
 > - Generate the public key
-> **$ openssl rsa -in "keys/private_key.pem" -inform pem -out
-> "keys/public_key.cert" -outform der -pubout**
+>
+> **$ openssl rsa -in "keys/private_key.pem" -inform pem -out "keys/public_key.cert" -outform der -pubout**
 > - Java works with DER format, so convert the private key
-> **$ openssl rsa -in "keys/private_key.pem" -inform pem -out
-> "keys/private_key.key" -outform der**
+>
+> **$ openssl rsa -in "keys/private_key.pem" -inform pem -out "keys/private_key.key" -outform der**
