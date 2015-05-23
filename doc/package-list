@@ -1,4 +1,6 @@
-gr.kzps.crypto
-gr.kzps.exceptions
-gr.kzps.executor
-gr.kzps.filesystem
+gr.kzps.FileCrypto.crypto
+gr.kzps.FileCrypto.exceptions
+gr.kzps.FileCrypto.executor
+gr.kzps.FileCrypto.executor.Tests
+gr.kzps.FileCrypto.filesystem
+gr.kzps.FileCrypto.filesystem.Tests
