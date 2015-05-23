@@ -24,7 +24,6 @@ import java.nio.file.NotDirectoryException;
 
 import gr.kzps.crypto.CryptoOperation;
 import gr.kzps.exceptions.NoCryptoKeyProvided;
-import gr.kzps.filesystem.FilesystemOperations;
 
 import org.apache.commons.cli.CommandLine;
 import org.apache.commons.cli.HelpFormatter;

@@ -26,7 +26,6 @@ import java.io.FileNotFoundException;
 import java.nio.file.NotDirectoryException;
 
 import org.junit.Test;
-
 import static org.junit.Assert.*;
 
 public class DispatcherTest {
