@@ -21,8 +21,10 @@ package gr.kzps.FileCrypto.crypto;
 
 import gr.kzps.FileCrypto.filesystem.FilesystemOperations;
 
+
 import java.io.File;
 import java.io.IOException;
+import java.nio.file.Paths;
 import java.security.InvalidKeyException;
 import java.security.KeyFactory;
 import java.security.NoSuchAlgorithmException;
@@ -32,10 +34,12 @@ import java.security.spec.InvalidKeySpecException;
 import java.security.spec.PKCS8EncodedKeySpec;
 import java.util.List;
 
+
 import javax.crypto.BadPaddingException;
 import javax.crypto.Cipher;
 import javax.crypto.IllegalBlockSizeException;
 import javax.crypto.NoSuchPaddingException;
+
 
 import org.bouncycastle.jce.provider.BouncyCastleProvider;
 
@@ -75,7 +79,7 @@ public class Decrypt implements Runnable {
 			// Replace ".enc" with ".dec" for decrypted files
 			String newFileName = x.getName().substring(0, x.getName().length() - 3).concat("dec");
 			try {
-				String absoluteName = outputDir.concat("/").concat(newFileName);
+				String absoluteName = Paths.get(outputDir, newFileName).toString();
 				fso.writeBytesToFile(new File(absoluteName), decrypt(x));
 			} catch (IOException ex) {
 				ex.printStackTrace();

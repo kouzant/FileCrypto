@@ -27,5 +27,6 @@ package gr.kzps.FileCrypto.crypto;
  */
 public enum CryptoOperation {
 	ENCRYPT,
-	DECRYPT
+	DECRYPT,
+	NONE
 }

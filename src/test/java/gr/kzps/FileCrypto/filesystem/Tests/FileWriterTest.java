@@ -23,6 +23,7 @@ import gr.kzps.FileCrypto.filesystem.FilesystemOperations;
 
 import java.io.File;
 import java.io.IOException;
+import java.nio.file.Paths;
 
 import org.junit.BeforeClass;
 import org.junit.Test;
@@ -32,7 +33,7 @@ import static org.junit.Assert.assertEquals;
 
 public class FileWriterTest {
 	private static FilesystemOperations fso;
-	private final static String newFile = "output_test/writeTest";
+	private final static String newFile = Paths.get("output_test", "writeTest").toString();
 	private final static String content = "output write test!";
 	private static File file;
 

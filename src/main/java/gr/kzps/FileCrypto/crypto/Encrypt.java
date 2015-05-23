@@ -23,6 +23,7 @@ import gr.kzps.FileCrypto.filesystem.FilesystemOperations;
 
 import java.io.File;
 import java.io.IOException;
+import java.nio.file.Paths;
 import java.security.InvalidKeyException;
 import java.security.KeyFactory;
 import java.security.NoSuchAlgorithmException;
@@ -74,7 +75,7 @@ public class Encrypt implements Runnable {
 		encryptList.stream().forEach(x -> {
 			String newFileName = x.getName().concat(".enc");
 			try {
-				String absoluteName = outputDir.concat("/").concat(newFileName);
+				String absoluteName = Paths.get(outputDir, newFileName).toString();
 				fso.writeBytesToFile(new File(absoluteName), encrypt(x));
 			} catch (IOException ex) {
 				ex.printStackTrace();

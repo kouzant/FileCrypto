@@ -84,13 +84,18 @@ public class Dispatcher {
 
 		ExecutorService execService = Executors.newFixedThreadPool(cores * 2);
 
+		// If output dir does not exist, create it
+		File output = new File(outputDirectory);
+		if (!output.exists())
+			output.mkdir();
+			
 		if (inputFiles.size() < MULTITHREAD_THRESH) {
 			// Dispatch all files to one processor
 			log.info("Dispatch files to one thread");
 			// Dispatch list to worker thread
 			if (operation.equals(CryptoOperation.ENCRYPT)) {
 				tasks.add(new Encrypt(inputFiles, outputDirectory, key));
-			} else {
+			} else if (operation.equals(CryptoOperation.DECRYPT)) {
 				tasks.add(new Decrypt(inputFiles, outputDirectory, key));
 			}
 
@@ -121,7 +126,7 @@ public class Dispatcher {
 				// Dispatch lists to worker threads
 				if (operation.equals(CryptoOperation.ENCRYPT)) {
 					tasks.add(new Encrypt(dispatchList, outputDirectory, key));
-				} else {
+				} else if (operation.equals(CryptoOperation.DECRYPT)) {
 					tasks.add(new Decrypt(dispatchList, outputDirectory, key));
 				}
 			}
@@ -129,17 +134,21 @@ public class Dispatcher {
 		
 		long startTime = System.currentTimeMillis();
 		
-		// Spawn threads
-		tasks.stream().forEach(x -> execService.execute(x));
-		execService.shutdown();
-		
-		long stopTime = System.currentTimeMillis();
+		if (tasks.size() > 0) {
+			// Spawn threads
+			tasks.stream().forEach(x -> execService.execute(x));
+			execService.shutdown();
 
-		if (execService.awaitTermination(5, TimeUnit.MINUTES)) {
-			if (operation.equals(CryptoOperation.ENCRYPT)) {
-				log.info("Encrypted {} files in {} ms", new Object[] {inputFiles.size(), stopTime - startTime});
-			} else {
-				log.info("Decrypted {} files in {} ms", new Object[] {inputFiles.size(), stopTime - startTime});
+			long stopTime = System.currentTimeMillis();
+
+			if (execService.awaitTermination(5, TimeUnit.MINUTES)) {
+				if (operation.equals(CryptoOperation.ENCRYPT)) {
+					log.info("Encrypted {} files in {} ms", new Object[] {
+							inputFiles.size(), stopTime - startTime });
+				} else {
+					log.info("Decrypted {} files in {} ms", new Object[] {
+							inputFiles.size(), stopTime - startTime });
+				}
 			}
 		}
 

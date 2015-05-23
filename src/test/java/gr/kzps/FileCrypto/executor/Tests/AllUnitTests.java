@@ -19,10 +19,14 @@
 */
 package gr.kzps.FileCrypto.executor.Tests;
 
+import java.io.File;
+import java.io.IOException;
+import gr.kzps.FileCrypto.filesystem.FilesystemOperations;
 import gr.kzps.FileCrypto.filesystem.Tests.EnumeratorTest;
 import gr.kzps.FileCrypto.filesystem.Tests.FileReaderTest;
 import gr.kzps.FileCrypto.filesystem.Tests.FileWriterTest;
 
+import org.junit.BeforeClass;
 import org.junit.runner.RunWith;
 import org.junit.runners.Suite;
 import org.junit.runners.Suite.SuiteClasses;
@@ -31,4 +35,45 @@ import org.junit.runners.Suite.SuiteClasses;
 @SuiteClasses({ DispatcherTest.class, ParserTest.class, EnumeratorTest.class,
 		FileReaderTest.class, FileWriterTest.class })
 public class AllUnitTests {
+	private static final String input = "input_test";
+	private static final String output = "output_test";
+	private static final String fileName = "test_file";
+	
+	@BeforeClass
+	public static void beforeAll() {
+		System.out.println("BEFORE!");
+		FilesystemOperations fos = new FilesystemOperations();
+		File inputDir = new File(input);
+		File outputDir = new File(output);
+		
+		if (inputDir.exists()) {
+			deleteFiles(inputDir);
+			inputDir.delete();
+		}
+		inputDir.mkdir();
+
+		if (outputDir.exists()) {
+			deleteFiles(outputDir);
+			outputDir.delete();
+		}
+		outputDir.mkdir();
+
+		// Create 20 test files
+		for (int i = 0; i < 20; i++) {
+			String testFileName = input.concat("/").concat(fileName).concat(String.valueOf(i));
+			try {
+				fos.writeBytesToFile(new File(testFileName), testFileName.getBytes());
+			} catch (IOException ex) {
+				ex.printStackTrace();
+			}
+		}
+	}
+	
+	private static void deleteFiles(File directory) {
+		File[] files = directory.listFiles();
+		
+		for (int i = 0; i < files.length; i++) {
+			files[i].delete();
+		}
+	}
 }

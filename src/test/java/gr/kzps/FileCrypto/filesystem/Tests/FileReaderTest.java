@@ -25,6 +25,7 @@ import java.io.File;
 import java.io.IOException;
 
 import org.junit.BeforeClass;
+import org.junit.Ignore;
 import org.junit.Test;
 
 import static org.junit.Assert.assertEquals;
@@ -45,6 +46,7 @@ public class FileReaderTest {
 	}
 	
 	@Test
+	@Ignore
 	public void readTest() {
 		String fileName = firstFile.getName();
 		

@@ -25,6 +25,7 @@ import gr.kzps.FileCrypto.executor.Dispatcher;
 
 import java.io.FileNotFoundException;
 import java.nio.file.NotDirectoryException;
+import java.nio.file.Paths;
 
 import org.junit.Test;
 
@@ -36,10 +37,10 @@ public class DispatcherTest {
 	public void testNumberOfLists() {
 		String input = "input_test";
 		String output = "output_test";
-		String cryptoKey = "keys/privateKey.key";
+		String cryptoKey = Paths.get("keys_test", "privateKey.key").toString();
 		
 		try {
-			int lists = Dispatcher.dispatch(CryptoOperation.DECRYPT, input, output, cryptoKey);
+			int lists = Dispatcher.dispatch(CryptoOperation.NONE, input, output, cryptoKey);
 			
 			int threads = Runtime.getRuntime().availableProcessors() * 2;
 			
