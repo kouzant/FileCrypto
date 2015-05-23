@@ -2,7 +2,11 @@ package gr.kzps.filesystem;
 
 import java.io.File;
 import java.io.FileNotFoundException;
+import java.io.IOException;
+import java.nio.file.Files;
 import java.nio.file.NotDirectoryException;
+import java.nio.file.Paths;
+import java.nio.file.StandardOpenOption;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -35,5 +39,15 @@ public class FilesystemOperations {
 		}
 		
 		return inputFiles;
+	}
+	
+	public byte[] readFileContent(File file) throws IOException {
+		byte[] content = Files.readAllBytes(Paths.get(file.getAbsolutePath()));
+		
+		return content;
+	}
+	
+	public void writeBytesToFile(File file, byte[] content) throws IOException {
+		Files.write(Paths.get(file.getAbsolutePath()), content);
 	}
 }
