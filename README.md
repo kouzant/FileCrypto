@@ -15,7 +15,8 @@ The source code is licensed under GPLv3
 Compile
 -------
 
-To compile it you will need Maven. Type **mvn package** to generate a jar file.
+To compile it you will need Maven. Type **mvn package -DskipTests** to generate
+a jar file without running the unit tests.
 
 Run
 ---
