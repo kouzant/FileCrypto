@@ -53,7 +53,7 @@
 				<configuration>
 				  <archive>
 					<manifest>
-						<mainClass>gr.kzps.executor.Executor</mainClass>
+						<mainClass>gr.kzps.FileCrypto.executor.Executor</mainClass>
 					</manifest>
 				  </archive>
 				</configuration>
