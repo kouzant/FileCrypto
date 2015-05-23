@@ -20,6 +20,9 @@ a jar file without running the unit tests.
 
 Run
 ---
+
+**The keys in directory keys_test are only for TESTING purposes. You MUST create new pair!**
+
 **java -jar FileCrypto-1.0.jar [OPTIONS]**
 
 usage: FileCrypto
