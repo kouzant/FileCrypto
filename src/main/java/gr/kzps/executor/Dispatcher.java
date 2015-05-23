@@ -9,7 +9,6 @@ import gr.kzps.filesystem.FilesystemOperations;
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.IOException;
-import java.io.ObjectInputStream.GetField;
 import java.nio.file.NotDirectoryException;
 import java.util.ArrayList;
 import java.util.List;
@@ -17,7 +16,14 @@ import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.TimeUnit;
 
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
+
 public class Dispatcher {
+	private static final Logger log = LogManager.getLogger(Dispatcher.class);
+	
+	private static final Integer MULTITHREAD_THRESH = 500;
+	
 	private static List<Runnable> tasks;
 	private static FilesystemOperations fso;
 
@@ -38,10 +44,9 @@ public class Dispatcher {
 
 		ExecutorService execService = Executors.newFixedThreadPool(cores * 2);
 
-		// TODO remove magic number
-		if (inputFiles.size() < 20) {
+		if (inputFiles.size() < MULTITHREAD_THRESH) {
 			// Dispatch all files to one processor
-			System.out.println("Dispatch to one thread");
+			log.info("Dispatch files to one thread");
 			// Dispatch list to worker thread
 			if (operation.equals(CryptoOperation.ENCRYPT)) {
 				tasks.add(new Encrypt(inputFiles, outputDirectory, key));
@@ -71,6 +76,8 @@ public class Dispatcher {
 				dispatchedLists++;
 				index += step;
 
+				log.info("Dispatch files to a new thread");
+
 				// Dispatch lists to worker threads
 				if (operation.equals(CryptoOperation.ENCRYPT)) {
 					tasks.add(new Encrypt(dispatchList, outputDirectory, key));
@@ -79,17 +86,20 @@ public class Dispatcher {
 				}
 			}
 		}
-
+		
+		long startTime = System.currentTimeMillis();
+		
 		// Spawn threads
 		tasks.stream().forEach(x -> execService.execute(x));
-
 		execService.shutdown();
+		
+		long stopTime = System.currentTimeMillis();
 
 		if (execService.awaitTermination(5, TimeUnit.MINUTES)) {
 			if (operation.equals(CryptoOperation.ENCRYPT)) {
-				System.out.println("Encryption is over!");
+				log.info("Encrypted {} files in {} ms", new Object[] {inputFiles.size(), stopTime - startTime});
 			} else {
-				System.out.println("Decryption is over!");
+				log.info("Decrypted {} files in {} ms", new Object[] {inputFiles.size(), stopTime - startTime});
 			}
 		}
 

@@ -16,7 +16,7 @@ public class DispatcherTest {
 	public void testNumberOfLists() {
 		String input = "/home/antonis/Tobii/FileCrypto/input_test";
 		String output = "/home/antonis/Tobii/FileCrypto/output_test";
-		String cryptoKey = "/home/antonis/Tobii/FileCrypto/key";
+		String cryptoKey = "/home/antonis/Tobii/FileCrypto/keys/privateKey.key";
 		
 		try {
 			int lists = Dispatcher.dispatch(CryptoOperation.DECRYPT, input, output, cryptoKey);

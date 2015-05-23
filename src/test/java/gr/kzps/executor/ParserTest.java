@@ -18,7 +18,7 @@ public class ParserTest {
 	
 	@BeforeClass
 	public static void before() {
-		String[] args = {"-e", "-i input/test", "-o output/test", "-h", "--version"};
+		String[] args = {"-e", "-i input/test", "-o output/test", "-h", "--version", "-k keys/key"};
 		
 		parser = new CommandParser(args);
 		try {
@@ -68,5 +68,14 @@ public class ParserTest {
 	public void testVersion() {
 		assertEquals(true, cmd.hasOption(ArgumentsName.VERSION_L));
 		assertEquals(true, cmd.hasOption(ArgumentsName.VERSION_S));
+	}
+	
+	@Test
+	public void testKey() {
+		assertEquals(true, cmd.hasOption(ArgumentsName.KEY_L));
+		assertEquals(true, cmd.hasOption(ArgumentsName.KEY_S));
+		
+		assertEquals(" keys/key", cmd.getOptionValue(ArgumentsName.KEY_L));
+		assertEquals(" keys/key", cmd.getOptionValue(ArgumentsName.KEY_S));
 	}
 }

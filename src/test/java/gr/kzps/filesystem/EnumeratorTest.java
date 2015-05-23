@@ -26,6 +26,6 @@ public class EnumeratorTest {
 	@Test
 	public void numberOfFiles() {
 		
-		assertEquals(25, enumeratedFiles.size());
+		assertEquals(540, enumeratedFiles.size());
 	}
 }

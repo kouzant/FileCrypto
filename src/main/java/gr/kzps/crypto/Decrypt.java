@@ -20,9 +20,11 @@ import javax.crypto.Cipher;
 import javax.crypto.IllegalBlockSizeException;
 import javax.crypto.NoSuchPaddingException;
 
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import org.bouncycastle.jce.provider.BouncyCastleProvider;
 
-public class Decrypt implements Runnable {
+public class Decrypt implements Runnable {	
 	private final List<File> decryptList;
 	private final String outputDir;
 	private PrivateKey key = null;
@@ -41,8 +43,8 @@ public class Decrypt implements Runnable {
 			key = keyFactory.generatePrivate(keySpec);
 		} catch (NoSuchAlgorithmException ex) {
 			ex.printStackTrace();
-		} catch (InvalidKeySpecException e) {
-			e.printStackTrace();
+		} catch (InvalidKeySpecException ex) {
+			ex.printStackTrace();
 		}
 	}
 	@Override
