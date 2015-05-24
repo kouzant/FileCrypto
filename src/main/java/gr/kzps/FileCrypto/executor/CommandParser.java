@@ -71,6 +71,10 @@ public class CommandParser {
 		Option cryptoKey = Option.builder(ArgumentsName.KEY_S)
 				.longOpt(ArgumentsName.KEY_L).hasArg()
 				.desc("encryption/decryption key").build();
+		Option threshold = Option.builder(ArgumentsName.THRESHOLD_S)
+				.longOpt(ArgumentsName.THRESHOLD_L).hasArg()
+				.desc("Threshold to dispatch files to multiple threads. DEFAULT 300")
+				.build();
 
 		options.addOption(help);
 		options.addOption(version);
@@ -79,6 +83,7 @@ public class CommandParser {
 		options.addOption(inputDir);
 		options.addOption(outputDir);
 		options.addOption(cryptoKey);
+		options.addOption(threshold);
 
 		CommandLineParser parser = new DefaultParser();
 		CommandLine cmd = parser.parse(options, args);

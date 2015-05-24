@@ -38,9 +38,10 @@ public class DispatcherTest {
 		String input = "input_test";
 		String output = "output_test";
 		String cryptoKey = Paths.get("keys_test", "privateKey.key").toString();
+		Integer threshold = 300;
 		
 		try {
-			int lists = Dispatcher.dispatch(CryptoOperation.NONE, input, output, cryptoKey);
+			int lists = Dispatcher.dispatch(CryptoOperation.NONE, input, output, threshold, cryptoKey);
 			
 			int threads = Runtime.getRuntime().availableProcessors() * 2;
 			

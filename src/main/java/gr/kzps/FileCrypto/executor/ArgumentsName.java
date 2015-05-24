@@ -46,4 +46,7 @@ public class ArgumentsName {
 	
 	public static final String KEY_L = "key";
 	public static final String KEY_S = "k";
+	
+	public static final String THRESHOLD_L = "threshold";
+	public static final String THRESHOLD_S = "t";
 }

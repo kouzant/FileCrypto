@@ -42,7 +42,7 @@ public class ParserTest {
 	
 	@BeforeClass
 	public static void before() {
-		String[] args = {"-e", "-i input/test", "-o output/test", "-h", "--version", "-k keys/key"};
+		String[] args = {"-e", "-i input/test", "-o output/test", "-h", "--version", "-k keys/key", "-t 300"};
 				
 		parser = new CommandParser(args);
 		try {
@@ -101,5 +101,14 @@ public class ParserTest {
 		
 		assertEquals(" keys/key", cmd.getOptionValue(ArgumentsName.KEY_L));
 		assertEquals(" keys/key", cmd.getOptionValue(ArgumentsName.KEY_S));
+	}
+	
+	@Test
+	public void testThreshold() {
+		assertEquals(true, cmd.hasOption(ArgumentsName.THRESHOLD_L));
+		assertEquals(true, cmd.hasOption(ArgumentsName.THRESHOLD_S));
+		
+		assertEquals(" 300", cmd.getOptionValue(ArgumentsName.THRESHOLD_L));
+		assertEquals(" 300", cmd.getOptionValue(ArgumentsName.THRESHOLD_S));
 	}
 }

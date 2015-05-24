@@ -41,7 +41,6 @@ public class AllUnitTests {
 	
 	@BeforeClass
 	public static void beforeAll() {
-		System.out.println("BEFORE!");
 		FilesystemOperations fos = new FilesystemOperations();
 		File inputDir = new File(input);
 		File outputDir = new File(output);

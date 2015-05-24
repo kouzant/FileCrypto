@@ -48,9 +48,6 @@ import org.apache.logging.log4j.Logger;
 public class Dispatcher {
 	private static final Logger log = LogManager.getLogger(Dispatcher.class);
 	
-	// Under some threshold create only one thread
-	private static final Integer MULTITHREAD_THRESH = 500;
-	
 	private static List<Runnable> tasks;
 	private static FilesystemOperations fso;
 
@@ -68,7 +65,7 @@ public class Dispatcher {
 	 * @throws NoCryptoKeyProvided
 	 */
 	public static int dispatch(CryptoOperation operation,
-			String inputDirectory, String outputDirectory, String cryptoKey)
+			String inputDirectory, String outputDirectory, Integer threshold, String cryptoKey)
 			throws FileNotFoundException, NotDirectoryException,
 			InterruptedException, NoCryptoKeyProvided {
 
@@ -89,7 +86,9 @@ public class Dispatcher {
 		if (!output.exists())
 			output.mkdir();
 			
-		if (inputFiles.size() < MULTITHREAD_THRESH) {
+		log.info("Started with threshold: {}", threshold);
+		
+		if (inputFiles.size() < threshold) {
 			// Dispatch all files to one processor
 			log.info("Dispatch files to one thread");
 			// Dispatch list to worker thread
