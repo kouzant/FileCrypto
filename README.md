@@ -5,6 +5,9 @@ FileCrypto
 Application that uses public key cryptography to encrypt contents of a
 directory.
 
+Note: Currently FileCrypto uses only RSA encryption, so each file size is limited by the key size. That is for key 
+2048 bits, is limited to 245 byte :P Future releases (hopefully) will use both AES and RSA.
+
 License
 -------
 Copyright 2015 (C)
