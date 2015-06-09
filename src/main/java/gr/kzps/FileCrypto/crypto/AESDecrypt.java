@@ -28,13 +28,13 @@ import org.bouncycastle.jce.provider.BouncyCastleProvider;
 
 import gr.kzps.FileCrypto.filesystem.FilesystemOperations;
 
-public class AESEncrypt implements Runnable {
-	private static final Logger log = LogManager.getLogger(AESEncrypt.class);
+public class AESDecrypt implements Runnable {
+	private static final Logger log = LogManager.getLogger(AESDecrypt.class);
 
 	private final char[] password;
 	private final byte[] seed, salt;
 	private FilesystemOperations fso;
-	private List<File> encryptList;
+	private List<File> decryptList;
 	private final String outputDir;
 	private SecretKeyFactory secretKeyFactory;
 	private AlgorithmParameterSpec algorithmParameterSpec;
@@ -42,11 +42,11 @@ public class AESEncrypt implements Runnable {
 	private SecretKey secretKey;
 	private Cipher cipher;
 	
-	public AESEncrypt(char[] password, byte[] seed, byte[] salt, List<File> encryptList, String outputDir) {
+	public AESDecrypt(char[] password, byte[] seed, byte[] salt, List<File> decryptList, String outputDir) {
 		this.password = password;
 		this.seed = seed;
 		this.salt = salt;
-		this.encryptList = encryptList;
+		this.decryptList = decryptList;
 		this.outputDir = outputDir;
 		
 		fso = new FilesystemOperations();
@@ -61,7 +61,7 @@ public class AESEncrypt implements Runnable {
 			keySpec = new PBEKeySpec(password, salt, 4000, 256);
 			secretKey = new SecretKeySpec(secretKeyFactory.generateSecret(keySpec).getEncoded(), "AES");
 			cipher = Cipher.getInstance("AES/CBC/PKCS5Padding");
-	        cipher.init(Cipher.ENCRYPT_MODE, secretKey, algorithmParameterSpec);
+	        cipher.init(Cipher.DECRYPT_MODE, secretKey, algorithmParameterSpec);
 		} catch (NoSuchAlgorithmException e) {
 			e.printStackTrace();
 		} catch (InvalidKeySpecException e) {
@@ -74,32 +74,32 @@ public class AESEncrypt implements Runnable {
 			e.printStackTrace();
 		}
 		
-		encryptList.stream().forEach(x -> {
-			String newFileName = x.getName().concat(".enc");
+		decryptList.stream().forEach(x -> {
+			// Replace ".enc" with ".dec" for decrypted files
+			String newFileName = x.getName().substring(0, x.getName().length() - 3).concat("dec");
 			try {
 				String absoluteName = Paths.get(outputDir, newFileName).toString();
-				fso.writeBytesToFile(new File(absoluteName), encrypt(x));
+				fso.writeBytesToFile(new File(absoluteName), decrypt(x));
 			} catch (IOException ex) {
 				ex.printStackTrace();
 			}
 		});
 	}
 
-	private byte[] encrypt(File file) {
-		byte[] ciphertext = null;
-
+	private byte[] decrypt(File file) {
+		byte[] plaintext = null;
+		
 		try {
 			byte[] data = fso.readFileContent(file);
-			ciphertext = cipher.doFinal(data);
-
-		} catch (IOException e) {
-			e.printStackTrace();
-		} catch (IllegalBlockSizeException e) {
-			e.printStackTrace();
-		} catch (BadPaddingException e) {
-			e.printStackTrace();
+			plaintext = cipher.doFinal(data);			
+		} catch (IOException ex) {
+			ex.printStackTrace();
+		} catch (IllegalBlockSizeException ex) {
+			ex.printStackTrace();
+		} catch (BadPaddingException ex) {
+			ex.printStackTrace();
 		}
 		
-		return ciphertext;
+		return plaintext;
 	}
 }

@@ -22,6 +22,7 @@ package gr.kzps.FileCrypto.filesystem.Tests;
 import gr.kzps.FileCrypto.filesystem.FilesystemOperations;
 
 import java.io.File;
+import java.util.ArrayList;
 import java.util.List;
 
 import org.junit.BeforeClass;
@@ -38,7 +39,8 @@ public class EnumeratorTest {
 	public static void before() {
 		fso = new FilesystemOperations();
 		try {
-			enumeratedFiles = fso.enumerateInputFiles(testDirectory);
+			List<String> excludeList = new ArrayList<String>();
+			enumeratedFiles = fso.enumerateInputFiles(testDirectory, excludeList);
 		} catch (Exception ex) {
 			ex.printStackTrace();
 		}

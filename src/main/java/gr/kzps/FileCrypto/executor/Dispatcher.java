@@ -19,6 +19,7 @@
 */
 package gr.kzps.FileCrypto.executor;
 
+import gr.kzps.FileCrypto.crypto.AESDecrypt;
 import gr.kzps.FileCrypto.crypto.AESEncrypt;
 import gr.kzps.FileCrypto.crypto.AESPrimitives;
 import gr.kzps.FileCrypto.crypto.CryptoOperation;
@@ -54,6 +55,7 @@ import org.apache.logging.log4j.Logger;
 public class Dispatcher {
 	private static final Logger log = LogManager.getLogger(Dispatcher.class);
 	
+	private static final String META_FILENAME = "FileCrypto_AESmetadata";
 	private static List<Runnable> tasks;
 	private static FilesystemOperations fso;
 	private static SecureRandom rand;
@@ -77,7 +79,10 @@ public class Dispatcher {
 			InterruptedException, NoCryptoKeyProvided {
 
 		fso = new FilesystemOperations();
-		List<File> inputFiles = fso.enumerateInputFiles(inputDirectory);
+		// TODO Implement option for excluding files
+		List<String> excludeFiles = new ArrayList<String>();
+		excludeFiles.add(META_FILENAME);
+		List<File> inputFiles = fso.enumerateInputFiles(inputDirectory, excludeFiles);
 		tasks = new ArrayList<Runnable>();
 		rand = new SecureRandom();
 		char[] password = null;
@@ -107,13 +112,20 @@ public class Dispatcher {
 			salt = rand.generateSeed(32);
 
 			AESPrimitives primitives = new AESPrimitives(password, seed, salt);
-			String absoluteName = Paths.get(outputDirectory, "AESmetadata").toString();
+			String absoluteName = Paths.get(outputDirectory, META_FILENAME).toString();
 			log.debug(absoluteName);
 			fso.serializeObject(primitives, new File(absoluteName));
 			
 			// TODO RSA Encrypt metadata
 		} else if (operation.equals(CryptoOperation.DECRYPT)) {
 			log.debug("Recover AES primitives");
+			// TODO RSA Decrypt metadata
+			
+			String absoluteName = Paths.get(inputDirectory, META_FILENAME).toString();
+			AESPrimitives primitives = fso.deserializeObject(new File(absoluteName));
+			password = primitives.getPassword();
+			seed = primitives.getSeed();
+			salt = primitives.getSalt();
 		}
 		
 			
@@ -128,7 +140,7 @@ public class Dispatcher {
 				tasks.add(new AESEncrypt(password, seed, salt, inputFiles, outputDirectory));
 			} else if (operation.equals(CryptoOperation.DECRYPT)) {
 				// TODO AES Decrypt
-				tasks.add(new RSADecrypt(inputFiles, outputDirectory, key));
+				tasks.add(new AESDecrypt(password, seed, salt, inputFiles, outputDirectory));
 			}
 
 			dispatchedLists++;
@@ -161,7 +173,7 @@ public class Dispatcher {
 					tasks.add(new AESEncrypt(password, seed, salt, inputFiles, outputDirectory));
 				} else if (operation.equals(CryptoOperation.DECRYPT)) {
 					// TODO AES Decrypt
-					tasks.add(new RSADecrypt(dispatchList, outputDirectory, key));
+					tasks.add(new AESDecrypt(password, seed, salt, inputFiles, outputDirectory));
 				}
 			}
 		}
@@ -176,7 +188,6 @@ public class Dispatcher {
 			long stopTime = System.currentTimeMillis();
 
 			if (execService.awaitTermination(5, TimeUnit.MINUTES)) {
-				// TODO RSA Encrypt AES primitives if ENCRYPTION
 				if (operation.equals(CryptoOperation.ENCRYPT)) {
 					log.info("Encrypted {} files in {} ms", new Object[] {
 							inputFiles.size(), stopTime - startTime });
@@ -190,6 +201,10 @@ public class Dispatcher {
 		return dispatchedLists;
 	}
 
+	/**
+	 * Generate random password
+	 * @return password
+	 */
 	private static char[] generatePassword() {
 		log.debug("Generating password");
 		return new BigInteger(130, rand).toString(32).toCharArray();

@@ -23,6 +23,8 @@ import gr.kzps.FileCrypto.filesystem.FilesystemOperations;
 
 import java.io.File;
 import java.io.IOException;
+import java.util.ArrayList;
+import java.util.List;
 
 import org.junit.BeforeClass;
 import org.junit.Ignore;
@@ -39,7 +41,8 @@ public class FileReaderTest {
 	public static void before() {
 		fso = new FilesystemOperations();
 		try {
-			firstFile = fso.enumerateInputFiles(readDirectory).get(0);
+			List<String> excludeList = new ArrayList<String>();
+			firstFile = fso.enumerateInputFiles(readDirectory, excludeList).get(0);
 		} catch (Exception ex) {
 			ex.printStackTrace();
 		}

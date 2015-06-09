@@ -55,11 +55,12 @@ public class FilesystemOperations {
 	 * Identify files in the input directory
 	 * 
 	 * @param directory Input directory
+	 * @param excludeFiles List of excluded files from encryption
 	 * @return List of available files in input directory
 	 * @throws FileNotFoundException
 	 * @throws NotDirectoryException
 	 */
-	public List<File> enumerateInputFiles(String directory)
+	public List<File> enumerateInputFiles(String directory, List<String> excludeFiles)
 			throws FileNotFoundException, NotDirectoryException {
 		
 		File inputDirectory = new File(directory);
@@ -78,7 +79,12 @@ public class FilesystemOperations {
 		
 		for (int i = 0; i < fileArray.length; i++) {
 			if (fileArray[i].isFile()) {
-				inputFiles.add(fileArray[i]);
+				File tmpFilename = fileArray[i];
+				excludeFiles.stream().forEach(x -> {
+					if (!x.equals(tmpFilename.getName())) {
+						inputFiles.add(tmpFilename);
+					}
+				});
 			}
 		}
 				
