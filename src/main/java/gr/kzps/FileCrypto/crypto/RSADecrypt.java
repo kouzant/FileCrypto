@@ -49,13 +49,13 @@ import org.bouncycastle.jce.provider.BouncyCastleProvider;
  * @author Antonis Kouzoupis
  *
  */
-public class Decrypt implements Runnable {	
+public class RSADecrypt implements Runnable {	
 	private final List<File> decryptList;
 	private final String outputDir;
 	private PrivateKey key = null;
 	private FilesystemOperations fso;
 	
-	public Decrypt(List<File> decryptList, String outputDir, byte[] cryptoKey) {
+	public RSADecrypt(List<File> decryptList, String outputDir, byte[] cryptoKey) {
 		this.decryptList = decryptList;
 		this.outputDir = outputDir;
 		this.fso = new FilesystemOperations();

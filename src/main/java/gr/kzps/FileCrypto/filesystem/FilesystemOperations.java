@@ -19,15 +19,24 @@
 */
 package gr.kzps.FileCrypto.filesystem;
 
+import gr.kzps.FileCrypto.crypto.AESPrimitives;
+import gr.kzps.FileCrypto.executor.Dispatcher;
+
 import java.io.File;
+import java.io.FileInputStream;
 import java.io.FileNotFoundException;
+import java.io.FileOutputStream;
 import java.io.IOException;
+import java.io.ObjectInputStream;
+import java.io.ObjectOutputStream;
 import java.nio.file.Files;
 import java.nio.file.NotDirectoryException;
 import java.nio.file.Paths;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.List;
+
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 
 /**
  * Class that implements operations to the filesystem
@@ -36,6 +45,8 @@ import java.util.List;
  *
  */
 public class FilesystemOperations {
+	private static final Logger log = LogManager.getLogger(FilesystemOperations.class);
+
 	public FilesystemOperations() {
 		super();
 	}
@@ -96,5 +107,55 @@ public class FilesystemOperations {
 	 */
 	public void writeBytesToFile(File file, byte[] content) throws IOException {
 		Files.write(Paths.get(file.getAbsolutePath()), content);
+	}
+	
+	/**
+	 * Serialize the AES cryptographic primitives
+	 * @param primitives AES cryptographic primitives object
+	 * @param file The file to be serialized to
+	 */
+	public void serializeObject(AESPrimitives primitives, File file) {
+		FileOutputStream fos;
+		try {
+			if (file.exists()) {
+				file.delete();
+			}
+			log.debug("Serializing to {}", file.getAbsolutePath());
+			fos = new FileOutputStream(file);
+			ObjectOutputStream oos = new ObjectOutputStream(fos);
+			oos.writeObject(primitives);
+			oos.close();
+			fos.close();
+			log.debug("Object serialized");
+		} catch (FileNotFoundException e) {
+			e.printStackTrace();
+		} catch (IOException e) {
+			e.printStackTrace();
+		}
+	}
+	
+	/**
+	 * Deserialize AES cryptographic primitives
+	 * @param file Serialization file
+	 * @return Primitives object
+	 */
+	public AESPrimitives deserializeObject(File file) {
+		AESPrimitives primitives = null;
+		
+		try {
+			FileInputStream fis = new FileInputStream(file);
+			ObjectInputStream ois = new ObjectInputStream(fis);
+			primitives = (AESPrimitives) ois.readObject();
+			ois.close();
+			fis.close();
+		} catch (FileNotFoundException e) {
+			e.printStackTrace();
+		} catch (IOException e) {
+			e.printStackTrace();
+		} catch (ClassNotFoundException e) {
+			e.printStackTrace();
+		}
+		
+		return primitives;
 	}
 }

@@ -1,0 +1,111 @@
+package gr.kzps.FileCrypto.crypto;
+
+import java.io.File;
+import java.io.IOException;
+import java.nio.file.Paths;
+import java.security.InvalidAlgorithmParameterException;
+import java.security.InvalidKeyException;
+import java.security.NoSuchAlgorithmException;
+import java.security.Security;
+import java.security.spec.AlgorithmParameterSpec;
+import java.security.spec.InvalidKeySpecException;
+import java.security.spec.KeySpec;
+import java.util.List;
+
+import javax.crypto.BadPaddingException;
+import javax.crypto.Cipher;
+import javax.crypto.IllegalBlockSizeException;
+import javax.crypto.NoSuchPaddingException;
+import javax.crypto.SecretKey;
+import javax.crypto.SecretKeyFactory;
+import javax.crypto.spec.IvParameterSpec;
+import javax.crypto.spec.PBEKeySpec;
+import javax.crypto.spec.SecretKeySpec;
+
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
+import org.bouncycastle.jce.provider.BouncyCastleProvider;
+
+import gr.kzps.FileCrypto.executor.Dispatcher;
+import gr.kzps.FileCrypto.filesystem.FilesystemOperations;
+
+public class AESEncrypt implements Runnable {
+	private static final Logger log = LogManager.getLogger(AESEncrypt.class);
+
+	private final char[] password;
+	private final byte[] seed, salt;
+	private FilesystemOperations fso;
+	private List<File> encryptList;
+	private final String outputDir;
+	private SecretKeyFactory secretKeyFactory;
+	private AlgorithmParameterSpec algorithmParameterSpec;
+	private KeySpec keySpec;
+	private SecretKey secretKey;
+	private Cipher cipher;
+	
+	public AESEncrypt(char[] password, byte[] seed, byte[] salt, List<File> encryptList, String outputDir) {
+		this.password = password;
+		this.seed = seed;
+		this.salt = salt;
+		this.encryptList = encryptList;
+		this.outputDir = outputDir;
+		
+		fso = new FilesystemOperations();
+		Security.addProvider(new BouncyCastleProvider());
+	}
+	
+	@Override
+	public void run() {
+		try {
+			secretKeyFactory = SecretKeyFactory.getInstance("PBKDF2WithHmacSHA1");
+			algorithmParameterSpec = new IvParameterSpec(seed);
+			keySpec = new PBEKeySpec(password, salt, 4000, 256);
+			secretKey = new SecretKeySpec(secretKeyFactory.generateSecret(keySpec).getEncoded(), "AES");
+			if (secretKey == null) {
+				log.debug("secretKey is null");
+			} else if (algorithmParameterSpec == null) {
+				log.debug("algorithmparam is null");
+			}
+			cipher = Cipher.getInstance("AES/CBC/PKCS5Padding");
+	        cipher.init(Cipher.ENCRYPT_MODE, secretKey, algorithmParameterSpec);
+		} catch (NoSuchAlgorithmException e) {
+			e.printStackTrace();
+		} catch (InvalidKeySpecException e) {
+			e.printStackTrace();
+		} catch (InvalidKeyException e) {
+			e.printStackTrace();
+		} catch (InvalidAlgorithmParameterException e) {
+			e.printStackTrace();
+		} catch (NoSuchPaddingException e) {
+			e.printStackTrace();
+		}
+		
+		encryptList.stream().forEach(x -> {
+			String newFileName = x.getName().concat(".enc");
+			try {
+				String absoluteName = Paths.get(outputDir, newFileName).toString();
+				fso.writeBytesToFile(new File(absoluteName), encrypt(x));
+			} catch (IOException ex) {
+				ex.printStackTrace();
+			}
+		});
+	}
+
+	private byte[] encrypt(File file) {
+		byte[] ciphertext = null;
+
+		try {
+			byte[] data = fso.readFileContent(file);
+			ciphertext = cipher.doFinal(data);
+
+		} catch (IOException e) {
+			e.printStackTrace();
+		} catch (IllegalBlockSizeException e) {
+			e.printStackTrace();
+		} catch (BadPaddingException e) {
+			e.printStackTrace();
+		}
+		
+		return ciphertext;
+	}
+}

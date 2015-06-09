@@ -19,16 +19,22 @@
 */
 package gr.kzps.FileCrypto.executor;
 
+import gr.kzps.FileCrypto.crypto.AESEncrypt;
+import gr.kzps.FileCrypto.crypto.AESPrimitives;
 import gr.kzps.FileCrypto.crypto.CryptoOperation;
-import gr.kzps.FileCrypto.crypto.Decrypt;
-import gr.kzps.FileCrypto.crypto.Encrypt;
+import gr.kzps.FileCrypto.crypto.RSADecrypt;
+import gr.kzps.FileCrypto.crypto.RSAEncrypt;
 import gr.kzps.FileCrypto.exceptions.NoCryptoKeyProvided;
 import gr.kzps.FileCrypto.filesystem.FilesystemOperations;
 
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.IOException;
+import java.io.ObjectInputStream.GetField;
+import java.math.BigInteger;
 import java.nio.file.NotDirectoryException;
+import java.nio.file.Paths;
+import java.security.SecureRandom;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.ExecutorService;
@@ -50,6 +56,7 @@ public class Dispatcher {
 	
 	private static List<Runnable> tasks;
 	private static FilesystemOperations fso;
+	private static SecureRandom rand;
 
 	/**
 	 * Static method that dispaches files to encryption/decryption threads
@@ -72,6 +79,10 @@ public class Dispatcher {
 		fso = new FilesystemOperations();
 		List<File> inputFiles = fso.enumerateInputFiles(inputDirectory);
 		tasks = new ArrayList<Runnable>();
+		rand = new SecureRandom();
+		char[] password = null;
+		byte[] seed = null;
+		byte [] salt = null;
 		byte[] key = readCryptoKey(cryptoKey);
 
 		// For testing
@@ -85,6 +96,26 @@ public class Dispatcher {
 		File output = new File(outputDirectory);
 		if (!output.exists())
 			output.mkdir();
+		
+		// TODO Construct or recover AES primitives
+		if (operation.equals(CryptoOperation.ENCRYPT)) {
+			log.debug("Construct AES primitives");
+			password = generatePassword();
+			log.debug("Generating seed");
+			seed = rand.generateSeed(16);
+			log.debug("Generating salt");
+			salt = rand.generateSeed(32);
+
+			AESPrimitives primitives = new AESPrimitives(password, seed, salt);
+			String absoluteName = Paths.get(outputDirectory, "AESmetadata").toString();
+			log.debug(absoluteName);
+			fso.serializeObject(primitives, new File(absoluteName));
+			
+			// TODO RSA Encrypt metadata
+		} else if (operation.equals(CryptoOperation.DECRYPT)) {
+			log.debug("Recover AES primitives");
+		}
+		
 			
 		log.info("Started with threshold: {}", threshold);
 		
@@ -93,9 +124,11 @@ public class Dispatcher {
 			log.info("Dispatch files to one thread");
 			// Dispatch list to worker thread
 			if (operation.equals(CryptoOperation.ENCRYPT)) {
-				tasks.add(new Encrypt(inputFiles, outputDirectory, key));
+				// TODO AES Encrypt
+				tasks.add(new AESEncrypt(password, seed, salt, inputFiles, outputDirectory));
 			} else if (operation.equals(CryptoOperation.DECRYPT)) {
-				tasks.add(new Decrypt(inputFiles, outputDirectory, key));
+				// TODO AES Decrypt
+				tasks.add(new RSADecrypt(inputFiles, outputDirectory, key));
 			}
 
 			dispatchedLists++;
@@ -124,9 +157,11 @@ public class Dispatcher {
 
 				// Dispatch lists to worker threads
 				if (operation.equals(CryptoOperation.ENCRYPT)) {
-					tasks.add(new Encrypt(dispatchList, outputDirectory, key));
+					// TODO AES Encrypt
+					tasks.add(new AESEncrypt(password, seed, salt, inputFiles, outputDirectory));
 				} else if (operation.equals(CryptoOperation.DECRYPT)) {
-					tasks.add(new Decrypt(dispatchList, outputDirectory, key));
+					// TODO AES Decrypt
+					tasks.add(new RSADecrypt(dispatchList, outputDirectory, key));
 				}
 			}
 		}
@@ -141,6 +176,7 @@ public class Dispatcher {
 			long stopTime = System.currentTimeMillis();
 
 			if (execService.awaitTermination(5, TimeUnit.MINUTES)) {
+				// TODO RSA Encrypt AES primitives if ENCRYPTION
 				if (operation.equals(CryptoOperation.ENCRYPT)) {
 					log.info("Encrypted {} files in {} ms", new Object[] {
 							inputFiles.size(), stopTime - startTime });
@@ -154,6 +190,11 @@ public class Dispatcher {
 		return dispatchedLists;
 	}
 
+	private static char[] generatePassword() {
+		log.debug("Generating password");
+		return new BigInteger(130, rand).toString(32).toCharArray();
+	}
+	
 	/**
 	 * Read cryptographic key from disk
 	 * 
