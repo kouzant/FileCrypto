@@ -16,7 +16,7 @@
 
     You should have received a copy of the GNU General Public License
     along with FileCrypto.  If not, see <http://www.gnu.org/licenses/>.
-*/
+ */
 package gr.kzps.FileCrypto.filesystem;
 
 import gr.kzps.FileCrypto.crypto.AESPrimitives;
@@ -45,7 +45,8 @@ import org.apache.logging.log4j.Logger;
  *
  */
 public class FilesystemOperations {
-	private static final Logger log = LogManager.getLogger(FilesystemOperations.class);
+	private static final Logger log = LogManager
+			.getLogger(FilesystemOperations.class);
 
 	public FilesystemOperations() {
 		super();
@@ -54,71 +55,86 @@ public class FilesystemOperations {
 	/**
 	 * Identify files in the input directory
 	 * 
-	 * @param directory Input directory
-	 * @param excludeFiles List of excluded files from encryption
+	 * @param directory
+	 *            Input directory
+	 * @param excludeFiles
+	 *            List of excluded files from encryption
 	 * @return List of available files in input directory
 	 * @throws FileNotFoundException
 	 * @throws NotDirectoryException
 	 */
-	public List<File> enumerateInputFiles(String directory, List<String> excludeFiles)
-			throws FileNotFoundException, NotDirectoryException {
-		
+	public List<File> enumerateInputFiles(String directory,
+			List<String> excludeFiles) throws FileNotFoundException,
+			NotDirectoryException {
+
 		File inputDirectory = new File(directory);
 		File[] fileArray;
 		List<File> inputFiles = new ArrayList<File>();
 
 		if (!inputDirectory.isDirectory()) {
-			throw new NotDirectoryException(inputDirectory.getName() + " is not a directory");
+			throw new NotDirectoryException(inputDirectory.getName()
+					+ " is not a directory");
 		}
 
 		if (inputDirectory.exists()) {
 			fileArray = inputDirectory.listFiles();
 		} else {
-			throw new FileNotFoundException("Directory: " + inputDirectory + " does not exist");
+			throw new FileNotFoundException("Directory: " + inputDirectory
+					+ " does not exist");
 		}
-		
+
 		for (int i = 0; i < fileArray.length; i++) {
 			if (fileArray[i].isFile()) {
 				File tmpFilename = fileArray[i];
-				excludeFiles.stream().forEach(x -> {
-					if (!x.equals(tmpFilename.getName())) {
-						inputFiles.add(tmpFilename);
-					}
-				});
+				if (!excludeFiles.isEmpty()) {
+					excludeFiles.stream().forEach(x -> {
+						if (!x.equals(tmpFilename.getName())) {
+							inputFiles.add(tmpFilename);
+						}
+					});
+				} else {
+					inputFiles.add(fileArray[i]);
+				}
 			}
 		}
-				
+
 		return inputFiles;
 	}
-	
+
 	/**
 	 * Method that reads content of a file
 	 * 
-	 * @param file The file to be read
+	 * @param file
+	 *            The file to be read
 	 * @return The contents of the file
 	 * @throws IOException
 	 */
 	public byte[] readFileContent(File file) throws IOException {
 		byte[] content = Files.readAllBytes(Paths.get(file.getAbsolutePath()));
-		
+
 		return content;
 	}
-	
+
 	/**
 	 * Method that writes content to a file
 	 * 
-	 * @param file The path to the file for the contents to be written
-	 * @param content Contents to be written
+	 * @param file
+	 *            The path to the file for the contents to be written
+	 * @param content
+	 *            Contents to be written
 	 * @throws IOException
 	 */
 	public void writeBytesToFile(File file, byte[] content) throws IOException {
 		Files.write(Paths.get(file.getAbsolutePath()), content);
 	}
-	
+
 	/**
 	 * Serialize the AES cryptographic primitives
-	 * @param primitives AES cryptographic primitives object
-	 * @param file The file to be serialized to
+	 * 
+	 * @param primitives
+	 *            AES cryptographic primitives object
+	 * @param file
+	 *            The file to be serialized to
 	 */
 	public void serializeObject(AESPrimitives primitives, File file) {
 		FileOutputStream fos;
@@ -139,15 +155,17 @@ public class FilesystemOperations {
 			e.printStackTrace();
 		}
 	}
-	
+
 	/**
 	 * Deserialize AES cryptographic primitives
-	 * @param file Serialization file
+	 * 
+	 * @param file
+	 *            Serialization file
 	 * @return Primitives object
 	 */
 	public AESPrimitives deserializeObject(File file) {
 		AESPrimitives primitives = null;
-		
+
 		try {
 			FileInputStream fis = new FileInputStream(file);
 			ObjectInputStream ois = new ObjectInputStream(fis);
@@ -161,7 +179,7 @@ public class FilesystemOperations {
 		} catch (ClassNotFoundException e) {
 			e.printStackTrace();
 		}
-		
+
 		return primitives;
 	}
 }

@@ -21,6 +21,8 @@ package gr.kzps.FileCrypto.executor.Tests;
 
 import java.io.File;
 import java.io.IOException;
+import java.nio.file.Paths;
+
 import gr.kzps.FileCrypto.filesystem.FilesystemOperations;
 import gr.kzps.FileCrypto.filesystem.Tests.EnumeratorTest;
 import gr.kzps.FileCrypto.filesystem.Tests.FileReaderTest;
@@ -59,7 +61,8 @@ public class AllUnitTests {
 
 		// Create 20 test files
 		for (int i = 0; i < 20; i++) {
-			String testFileName = input.concat("/").concat(fileName).concat(String.valueOf(i));
+			//String testFileName = input.concat("/").concat(fileName).concat(String.valueOf(i));
+			String testFileName = Paths.get(input, fileName.concat(String.valueOf(i))).toString();
 			try {
 				fos.writeBytesToFile(new File(testFileName), testFileName.getBytes());
 			} catch (IOException ex) {

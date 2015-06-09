@@ -16,7 +16,7 @@
 
     You should have received a copy of the GNU General Public License
     along with FileCrypto.  If not, see <http://www.gnu.org/licenses/>.
-*/
+ */
 package gr.kzps.FileCrypto.filesystem.Tests;
 
 import gr.kzps.FileCrypto.filesystem.FilesystemOperations;
@@ -34,21 +34,35 @@ public class EnumeratorTest {
 	private static FilesystemOperations fso;
 	private static String testDirectory = "input_test";
 	private static List<File> enumeratedFiles;
-	
+	private static List<String> excludeList;
+
 	@BeforeClass
 	public static void before() {
+		excludeList = new ArrayList<String>();
+	}
+
+	@Test
+	public void numberOfFiles() {
 		fso = new FilesystemOperations();
 		try {
-			List<String> excludeList = new ArrayList<String>();
-			enumeratedFiles = fso.enumerateInputFiles(testDirectory, excludeList);
+			enumeratedFiles = fso.enumerateInputFiles(testDirectory,
+					excludeList);
 		} catch (Exception ex) {
 			ex.printStackTrace();
 		}
+		assertEquals(20, enumeratedFiles.size());
 	}
 	
 	@Test
-	public void numberOfFiles() {
-		
-		assertEquals(20, enumeratedFiles.size());
+	public void numberOfFilesExclude() {
+		fso = new FilesystemOperations();
+		try {
+			excludeList.add("test_file0");
+			enumeratedFiles = fso.enumerateInputFiles(testDirectory,
+					excludeList);
+		} catch (Exception ex) {
+			ex.printStackTrace();
+		}
+		assertEquals(19, enumeratedFiles.size());
 	}
 }
