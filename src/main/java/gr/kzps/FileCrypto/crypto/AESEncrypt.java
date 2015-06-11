@@ -97,7 +97,8 @@ public class AESEncrypt implements Runnable {
 			String newFileName = x.getName().concat(".enc");
 			try {
 				String absoluteName = Paths.get(outputDir, newFileName).toString();
-				fso.writeBytesToFile(new File(absoluteName), encrypt(x));
+				byte[] ciphertext = encrypt(x);
+				fso.writeBytesToFile(new File(absoluteName), ciphertext);
 			} catch (IOException ex) {
 				ex.printStackTrace();
 			}

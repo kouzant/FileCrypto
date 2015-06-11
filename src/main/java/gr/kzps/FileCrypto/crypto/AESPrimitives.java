@@ -31,7 +31,7 @@ public class AESPrimitives implements Serializable{
 	public AESPrimitives(byte[] password, byte[] seed, byte[] salt) {
 		this.password = password;
 		this.seed = seed;
-		this.salt = salt;
+		this.salt = salt;		
 	}
 	
 	public byte[] getPassword() {

@@ -98,7 +98,8 @@ public class AESDecrypt implements Runnable {
 			String newFileName = x.getName().substring(0, x.getName().length() - 3).concat("dec");
 			try {
 				String absoluteName = Paths.get(outputDir, newFileName).toString();
-				fso.writeBytesToFile(new File(absoluteName), decrypt(x));
+				byte[] plaintext = decrypt(x);
+				fso.writeBytesToFile(new File(absoluteName), plaintext);
 			} catch (IOException ex) {
 				ex.printStackTrace();
 			}
@@ -109,6 +110,7 @@ public class AESDecrypt implements Runnable {
 		byte[] plaintext = null;
 		
 		try {
+			log.debug("Filename: {}", file.getAbsolutePath());
 			byte[] data = fso.readFileContent(file);
 			plaintext = cipher.doFinal(data);			
 		} catch (IOException ex) {

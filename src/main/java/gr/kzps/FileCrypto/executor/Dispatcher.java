@@ -51,6 +51,7 @@ import java.util.concurrent.TimeUnit;
 
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
+import org.bouncycastle.util.encoders.Base64;
 
 /**
  * Recognize files to be encrypted/decrypted and dispatch them to
@@ -124,9 +125,15 @@ public class Dispatcher {
 			log.debug("Generating salt");
 			salt = rand.generateSeed(32);
 
+			log.debug("Password: {}", Arrays.toString(password));
+
+			byte[] passBytes = toBytes(password);
+			log.debug("Password bytes: {}", new String(passBytes));
+			log.debug("Seed: {}", new String(Base64.encode(seed)));
+			log.debug("Salt: {}", new String(Base64.encode(salt)));
 			RSACipher<PublicKey> rsaCipher = new RSACipher<PublicKey>(
 					CryptoOperation.ENCRYPT, key);
-			byte[] encryptedPass = rsaCipher.encrypt(toBytes(password));
+			byte[] encryptedPass = rsaCipher.encrypt(passBytes);
 			byte[] encryptedSeed = rsaCipher.encrypt(seed);
 			byte[] encryptedSalt = rsaCipher.encrypt(salt);
 
@@ -151,9 +158,15 @@ public class Dispatcher {
 
 			RSACipher<PrivateKey> rsaCipher = new RSACipher<PrivateKey>(
 					CryptoOperation.DECRYPT, key);
-			password = toChar(rsaCipher.decrypt(encryptedPass));
+			byte[] bytePass = rsaCipher.decrypt(encryptedPass);
+			password = toChar(bytePass);
 			seed = rsaCipher.decrypt(encryptedSeed);
 			salt = rsaCipher.decrypt(encryptedSalt);
+			
+			log.debug("Password bytes: {}", new String(bytePass));
+			log.debug("Password: {}", Arrays.toString(password));
+			log.debug("Seed: {}", new String(Base64.encode(seed)));
+			log.debug("Salt: {}", new String(Base64.encode(salt)));
 		}
 
 		log.info("Started with threshold: {}", threshold);
