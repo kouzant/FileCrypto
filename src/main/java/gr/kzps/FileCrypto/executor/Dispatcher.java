@@ -99,6 +99,7 @@ public class Dispatcher {
 		tasks = new ArrayList<Runnable>();
 		rand = new SecureRandom();
 		char[] password = null;
+		char[] passwordCopy = null;
 		byte[] seed = null;
 		byte[] salt = null;
 
@@ -120,17 +121,14 @@ public class Dispatcher {
 		if (operation.equals(CryptoOperation.ENCRYPT)) {
 			log.debug("Construct AES primitives");
 			password = generatePassword();
+			// Copy in order to use it later, toBytes() clear the cache
+			passwordCopy = password.clone();
 			log.debug("Generating seed");
 			seed = rand.generateSeed(16);
 			log.debug("Generating salt");
 			salt = rand.generateSeed(32);
 
-			log.debug("Password: {}", Arrays.toString(password));
-
 			byte[] passBytes = toBytes(password);
-			log.debug("Password bytes: {}", new String(passBytes));
-			log.debug("Seed: {}", new String(Base64.encode(seed)));
-			log.debug("Salt: {}", new String(Base64.encode(salt)));
 			RSACipher<PublicKey> rsaCipher = new RSACipher<PublicKey>(
 					CryptoOperation.ENCRYPT, key);
 			byte[] encryptedPass = rsaCipher.encrypt(passBytes);
@@ -162,11 +160,6 @@ public class Dispatcher {
 			password = toChar(bytePass);
 			seed = rsaCipher.decrypt(encryptedSeed);
 			salt = rsaCipher.decrypt(encryptedSalt);
-			
-			log.debug("Password bytes: {}", new String(bytePass));
-			log.debug("Password: {}", Arrays.toString(password));
-			log.debug("Seed: {}", new String(Base64.encode(seed)));
-			log.debug("Salt: {}", new String(Base64.encode(salt)));
 		}
 
 		log.info("Started with threshold: {}", threshold);
@@ -177,7 +170,7 @@ public class Dispatcher {
 			// Dispatch list to worker thread
 			if (operation.equals(CryptoOperation.ENCRYPT)) {
 				// TODO AES Encrypt
-				tasks.add(new AESEncrypt(password, seed, salt, inputFiles,
+				tasks.add(new AESEncrypt(passwordCopy, seed, salt, inputFiles,
 						outputDirectory));
 			} else if (operation.equals(CryptoOperation.DECRYPT)) {
 				// TODO AES Decrypt
@@ -212,7 +205,7 @@ public class Dispatcher {
 				// Dispatch lists to worker threads
 				if (operation.equals(CryptoOperation.ENCRYPT)) {
 					// TODO AES Encrypt
-					tasks.add(new AESEncrypt(password, seed, salt, inputFiles,
+					tasks.add(new AESEncrypt(passwordCopy, seed, salt, inputFiles,
 							outputDirectory));
 				} else if (operation.equals(CryptoOperation.DECRYPT)) {
 					// TODO AES Decrypt
@@ -228,10 +221,11 @@ public class Dispatcher {
 			// Spawn threads
 			tasks.stream().forEach(x -> execService.execute(x));
 			execService.shutdown();
-
+			
 			long stopTime = System.currentTimeMillis();
 
 			if (execService.awaitTermination(5, TimeUnit.MINUTES)) {
+				
 				if (operation.equals(CryptoOperation.ENCRYPT)) {
 					log.info("Encrypted {} files in {} ms", new Object[] {
 							inputFiles.size(), stopTime - startTime });
@@ -255,8 +249,11 @@ public class Dispatcher {
 	private static char[] toChar(byte[] bytes) {
 		ByteBuffer byteBuffer = ByteBuffer.wrap(bytes);
 		CharBuffer charBuffer = Charset.forName("UTF-8").decode(byteBuffer);
-
-		return Arrays.copyOfRange(charBuffer.array(), 0, charBuffer.limit());
+		char[] chars = Arrays.copyOfRange(charBuffer.array(), 0, charBuffer.limit());
+		// Clear sensitive data
+		Arrays.fill(charBuffer.array(), '\u0000');
+		
+		return chars;
 	}
 
 	/**
@@ -271,8 +268,10 @@ public class Dispatcher {
 		ByteBuffer byteBuffer = Charset.forName("UTF-8").encode(charBuffer);
 		byte[] bytes = Arrays.copyOfRange(byteBuffer.array(),
 				byteBuffer.position(), byteBuffer.limit());
-		Arrays.fill(charBuffer.array(), '\u0000'); // clear sensitive data
-		Arrays.fill(byteBuffer.array(), (byte) 0); // clear sensitive data
+		// Clear sensitive data
+		Arrays.fill(charBuffer.array(), '\u0000');
+		Arrays.fill(byteBuffer.array(), (byte) 0);
+		
 		return bytes;
 	}
 
