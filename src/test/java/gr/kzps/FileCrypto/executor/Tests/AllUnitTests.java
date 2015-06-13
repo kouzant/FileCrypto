@@ -24,6 +24,7 @@ import java.io.IOException;
 import java.nio.file.Paths;
 
 import gr.kzps.FileCrypto.crypto.Tests.TestAsymmetric;
+import gr.kzps.FileCrypto.crypto.Tests.TestSerialization;
 import gr.kzps.FileCrypto.filesystem.FilesystemOperations;
 import gr.kzps.FileCrypto.filesystem.Tests.EnumeratorTest;
 import gr.kzps.FileCrypto.filesystem.Tests.FileReaderTest;
@@ -36,7 +37,9 @@ import org.junit.runners.Suite.SuiteClasses;
 
 @RunWith(Suite.class)
 @SuiteClasses({ DispatcherTest.class, ParserTest.class, EnumeratorTest.class,
-		FileReaderTest.class, FileWriterTest.class, TestAsymmetric.class })
+		FileReaderTest.class, FileWriterTest.class, TestAsymmetric.class,
+		TestSerialization.class})
+
 public class AllUnitTests {
 	private static final String input = "input_test";
 	private static final String output = "output_test";
