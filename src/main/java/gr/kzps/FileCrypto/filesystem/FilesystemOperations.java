@@ -20,7 +20,7 @@
 package gr.kzps.FileCrypto.filesystem;
 
 import gr.kzps.FileCrypto.crypto.AESPrimitives;
-import gr.kzps.FileCrypto.executor.Dispatcher;
+import gr.kzps.FileCrypto.exceptions.NoCryptoKeyProvided;
 
 import java.io.File;
 import java.io.FileInputStream;
@@ -181,5 +181,31 @@ public class FilesystemOperations {
 		}
 
 		return primitives;
+	}
+	
+	/**
+	 * Read cryptographic key from disk
+	 * 
+	 * @param key
+	 *            Path to the key, parsed from command line argument
+	 * @return Cryptographic key
+	 * @throws NoCryptoKeyProvided
+	 */
+	public byte[] readCryptoKey(String key) throws NoCryptoKeyProvided {
+		File keyFile = null;
+
+		if (key != null) {
+			keyFile = new File(key);
+
+			if (keyFile.exists()) {
+				try {
+					return readFileContent(keyFile);
+				} catch (IOException ex) {
+					ex.printStackTrace();
+				}
+			}
+		}
+
+		throw new NoCryptoKeyProvided("Could not read the cryptographic key");
 	}
 }

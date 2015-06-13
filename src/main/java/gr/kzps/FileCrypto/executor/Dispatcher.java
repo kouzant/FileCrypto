@@ -103,7 +103,7 @@ public class Dispatcher {
 		byte[] seed = null;
 		byte[] salt = null;
 
-		byte[] key = readCryptoKey(cryptoKey);
+		byte[] key = fso.readCryptoKey(cryptoKey);
 
 		// For testing
 		int dispatchedLists = 0;
@@ -117,7 +117,6 @@ public class Dispatcher {
 		if (!output.exists())
 			output.mkdir();
 
-		// TODO Construct or recover AES primitives
 		if (operation.equals(CryptoOperation.ENCRYPT)) {
 			log.debug("Construct AES primitives");
 			password = generatePassword();
@@ -140,12 +139,9 @@ public class Dispatcher {
 			String absoluteName = Paths.get(outputDirectory, META_FILENAME)
 					.toString();
 			fso.serializeObject(primitives, new File(absoluteName));
-
-			// TODO RSA Encrypt metadata
+			primitives = null;
 		} else if (operation.equals(CryptoOperation.DECRYPT)) {
 			log.debug("Recover AES primitives");
-			// TODO RSA Decrypt metadata
-
 			String absoluteName = Paths.get(inputDirectory, META_FILENAME)
 					.toString();
 			AESPrimitives primitives = fso.deserializeObject(new File(
@@ -153,6 +149,7 @@ public class Dispatcher {
 			byte[] encryptedPass = primitives.getPassword();
 			byte[] encryptedSeed = primitives.getSeed();
 			byte[] encryptedSalt = primitives.getSalt();
+			primitives = null;
 
 			RSACipher<PrivateKey> rsaCipher = new RSACipher<PrivateKey>(
 					CryptoOperation.DECRYPT, key);
@@ -162,6 +159,7 @@ public class Dispatcher {
 			salt = rsaCipher.decrypt(encryptedSalt);
 		}
 
+		
 		log.info("Started with threshold: {}", threshold);
 
 		if (inputFiles.size() < threshold) {
@@ -169,11 +167,9 @@ public class Dispatcher {
 			log.info("Dispatch files to one thread");
 			// Dispatch list to worker thread
 			if (operation.equals(CryptoOperation.ENCRYPT)) {
-				// TODO AES Encrypt
 				tasks.add(new AESEncrypt(passwordCopy, seed, salt, inputFiles,
 						outputDirectory));
 			} else if (operation.equals(CryptoOperation.DECRYPT)) {
-				// TODO AES Decrypt
 				tasks.add(new AESDecrypt(password, seed, salt, inputFiles,
 						outputDirectory));
 			}
@@ -204,11 +200,9 @@ public class Dispatcher {
 
 				// Dispatch lists to worker threads
 				if (operation.equals(CryptoOperation.ENCRYPT)) {
-					// TODO AES Encrypt
 					tasks.add(new AESEncrypt(passwordCopy, seed, salt, inputFiles,
 							outputDirectory));
 				} else if (operation.equals(CryptoOperation.DECRYPT)) {
-					// TODO AES Decrypt
 					tasks.add(new AESDecrypt(password, seed, salt, inputFiles,
 							outputDirectory));
 				}
@@ -283,31 +277,5 @@ public class Dispatcher {
 	private static char[] generatePassword() {
 		log.debug("Generating password");
 		return new BigInteger(130, rand).toString(32).toCharArray();
-	}
-
-	/**
-	 * Read cryptographic key from disk
-	 * 
-	 * @param key
-	 *            Path to the key, parsed from command line argument
-	 * @return Cryptographic key
-	 * @throws NoCryptoKeyProvided
-	 */
-	private static byte[] readCryptoKey(String key) throws NoCryptoKeyProvided {
-		File keyFile = null;
-
-		if (key != null) {
-			keyFile = new File(key);
-
-			if (keyFile.exists()) {
-				try {
-					return fso.readFileContent(keyFile);
-				} catch (IOException ex) {
-					ex.printStackTrace();
-				}
-			}
-		}
-
-		throw new NoCryptoKeyProvided("Could not read the cryptographic key");
 	}
 }

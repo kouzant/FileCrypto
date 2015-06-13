@@ -29,7 +29,6 @@ import java.security.Security;
 import java.security.spec.AlgorithmParameterSpec;
 import java.security.spec.InvalidKeySpecException;
 import java.security.spec.KeySpec;
-import java.util.Arrays;
 import java.util.List;
 
 import javax.crypto.BadPaddingException;
@@ -45,8 +44,6 @@ import javax.crypto.spec.SecretKeySpec;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.bouncycastle.jce.provider.BouncyCastleProvider;
-import org.bouncycastle.util.encoders.Base64;
-
 import gr.kzps.FileCrypto.filesystem.FilesystemOperations;
 
 public class AESDecrypt implements Runnable {
@@ -77,6 +74,7 @@ public class AESDecrypt implements Runnable {
 	@Override
 	public void run() {
 		try {
+			log.debug("Initializing cipher");
 			secretKeyFactory = SecretKeyFactory.getInstance("PBKDF2WithHmacSHA1");
 			algorithmParameterSpec = new IvParameterSpec(seed);
 			keySpec = new PBEKeySpec(password, salt, 4000, 256);
@@ -112,6 +110,7 @@ public class AESDecrypt implements Runnable {
 		byte[] plaintext = null;
 		
 		try {
+			log.debug("Decrypting {} bytes file", file.getTotalSpace());
 			byte[] data = fso.readFileContent(file);
 			plaintext = cipher.doFinal(data);			
 		} catch (IOException ex) {
