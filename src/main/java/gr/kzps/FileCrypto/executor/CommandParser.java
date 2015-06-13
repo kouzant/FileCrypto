@@ -73,7 +73,7 @@ public class CommandParser {
 				.desc("encryption/decryption key").build();
 		Option threshold = Option.builder(ArgumentsName.THRESHOLD_S)
 				.longOpt(ArgumentsName.THRESHOLD_L).hasArg()
-				.desc("Threshold to dispatch files to multiple threads. DEFAULT 300")
+				.desc("Threshold to dispatch files to multiple threads. DEFAULT 300 files")
 				.build();
 
 		options.addOption(help);
