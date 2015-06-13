@@ -5,8 +5,16 @@ FileCrypto
 Application that uses public key cryptography to encrypt contents of a
 directory.
 
-Note: Currently FileCrypto uses only RSA encryption, so each file size is limited by the key size. That is for key 
-2048 bits, is limited to 245 byte :P Future releases (hopefully) will use both AES and RSA.
+~~Note: Currently FileCrypto uses only RSA encryption, so each file size is limited by the key size. That is for key 
+2048 bits, is limited to 245 byte :P Future releases (hopefully) will use both AES and RSA.~~
+
+Version 2.0 supports RSA and AES-256 ciphers.
+
+Running FileCrypto with multiple threads might harm the performance depending on the size of the files you want to
+encrypt/decrypt. For small files (e.g. 50Mb) context switching and scheduling is a great overhead compared to the time
+needed to encrypt the file, so consider using only one thread with the **-t, --threshold** option. In case your files
+are of size greater than 300Mb then switch to multithreading. In multithreading most probably you will also have to
+tune Java heap size respectively to file size (-Xms<Size> -Xmx<Size>).
 
 License
 -------
@@ -26,7 +34,7 @@ Run
 
 **The keys in directory keys_test/ are only for TESTING purposes. You MUST create a new pair!**
 
-**java -jar FileCrypto-1.0.jar [OPTIONS]**
+**java -jar FileCrypto-XX.jar [OPTIONS]**
 
 usage: FileCrypto
 
@@ -46,11 +54,15 @@ Print help message
 input directory
 
  -k,--key &lt;arg&gt; &nbsp;
-&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
 encryption/decryption key
 
  -o,--outputdir &lt;arg&gt; &nbsp; &nbsp;&nbsp;&nbsp; output directory
  
+ -t,--threshold &lt;arg&gt; &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Threshold to dispatch files to multiple threads.
+ 
+ &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;DEFAULT 300 files
+
  -v,--version &nbsp;
 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
 Print version
