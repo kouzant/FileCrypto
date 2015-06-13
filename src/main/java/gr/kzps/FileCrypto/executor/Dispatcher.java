@@ -106,7 +106,7 @@ public class Dispatcher {
 
 		Integer cores = Runtime.getRuntime().availableProcessors();
 
-		ExecutorService execService = Executors.newFixedThreadPool(cores * 2);
+		ExecutorService execService = Executors.newFixedThreadPool(cores * 1);
 
 		// If output dir does not exist, create it
 		File output = new File(outputDirectory);
@@ -172,8 +172,8 @@ public class Dispatcher {
 
 			dispatchedLists++;
 		} else {
-			// Two threads per core
-			int step = (int) Math.ceil(inputFiles.size() / (cores * 2));
+			// One threads per core
+			int step = (int) Math.ceil(inputFiles.size() / (cores * 1));
 			step++;
 
 			log.info("Dispatch files to multiple threads");
@@ -211,11 +211,10 @@ public class Dispatcher {
 			// Spawn threads
 			tasks.stream().forEach(x -> execService.execute(x));
 			execService.shutdown();
-			
-			long stopTime = System.currentTimeMillis();
 
-			if (execService.awaitTermination(5, TimeUnit.MINUTES)) {
-				
+			if (execService.awaitTermination(30, TimeUnit.MINUTES)) {
+				long stopTime = System.currentTimeMillis();
+
 				if (operation.equals(CryptoOperation.ENCRYPT)) {
 					log.info("Encrypted {} files in {} ms", new Object[] {
 							inputFiles.size(), stopTime - startTime });
