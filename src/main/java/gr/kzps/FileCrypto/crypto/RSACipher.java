@@ -19,8 +19,6 @@
 */
 package gr.kzps.FileCrypto.crypto;
 
-import java.io.File;
-import java.io.IOException;
 import java.security.InvalidKeyException;
 import java.security.KeyFactory;
 import java.security.NoSuchAlgorithmException;
@@ -38,12 +36,24 @@ import javax.crypto.NoSuchPaddingException;
 
 import org.bouncycastle.jce.provider.BouncyCastleProvider;
 
+/**
+ * Implement RSA encryption algorithm. Used for encryption/decryption of metadata
+ * produced by AES-256
+ * @author Antonis Kouzoupis
+ *
+ * @param <T> Used either for encryption or decryption.
+ * @see java.security.PrivateKey
+ * @see java.security.PublicKey
+ */
 public class RSACipher<T> {
-	private PublicKey publicKey = null;
-	private PrivateKey privateKey = null;
 	private T key = null;
 	private KeyFactory keyFactory;
 	
+	/**
+	 * Constructor for the RSA operation
+	 * @param operation Encryption or Decryption
+	 * @param cryptoKey Cryptographic key that will be used by RSA
+	 */
 	public RSACipher(CryptoOperation operation, byte[] cryptoKey) {
 		Security.addProvider(new BouncyCastleProvider());
 		
@@ -70,6 +80,11 @@ public class RSACipher<T> {
 		}
 	}
 	
+	/**
+	 * Perform encrypt operation.
+	 * @param plaintext Bytes to be encrypted
+	 * @return Encrypted bytes
+	 */
 	public byte[] encrypt(byte[] plaintext) {
 		byte[] ciphertext = null;
 		
@@ -92,6 +107,11 @@ public class RSACipher<T> {
 		return ciphertext;
 	}
 	
+	/**
+	 * Perform decrypt operation
+	 * @param ciphertext Bytes to be decrypted
+	 * @return Decrypted bytes
+	 */
 	public byte[] decrypt(byte[] ciphertext) {
 		byte[] plaintext = null;
 		

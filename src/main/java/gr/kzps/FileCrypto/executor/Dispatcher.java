@@ -24,15 +24,11 @@ import gr.kzps.FileCrypto.crypto.AESEncrypt;
 import gr.kzps.FileCrypto.crypto.AESPrimitives;
 import gr.kzps.FileCrypto.crypto.CryptoOperation;
 import gr.kzps.FileCrypto.crypto.RSACipher;
-import gr.kzps.FileCrypto.crypto.RSADecrypt;
-import gr.kzps.FileCrypto.crypto.RSAEncrypt;
 import gr.kzps.FileCrypto.exceptions.NoCryptoKeyProvided;
 import gr.kzps.FileCrypto.filesystem.FilesystemOperations;
 
 import java.io.File;
 import java.io.FileNotFoundException;
-import java.io.IOException;
-import java.io.ObjectInputStream.GetField;
 import java.math.BigInteger;
 import java.nio.ByteBuffer;
 import java.nio.CharBuffer;
@@ -160,7 +156,7 @@ public class Dispatcher {
 		}
 
 		
-		log.info("Started with threshold: {}", threshold);
+		log.debug("Started with threshold: {}", threshold);
 
 		if (inputFiles.size() < threshold) {
 			// Dispatch all files to one processor
@@ -180,6 +176,8 @@ public class Dispatcher {
 			int step = (int) Math.ceil(inputFiles.size() / (cores * 2));
 			step++;
 
+			log.info("Dispatch files to multiple threads");
+
 			Integer index = 0;
 
 			while (index < inputFiles.size()) {
@@ -195,8 +193,6 @@ public class Dispatcher {
 
 				dispatchedLists++;
 				index += step;
-
-				log.info("Dispatch files to a new thread");
 
 				// Dispatch lists to worker threads
 				if (operation.equals(CryptoOperation.ENCRYPT)) {

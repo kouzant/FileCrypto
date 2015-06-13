@@ -46,6 +46,12 @@ import org.apache.logging.log4j.Logger;
 import org.bouncycastle.jce.provider.BouncyCastleProvider;
 import gr.kzps.FileCrypto.filesystem.FilesystemOperations;
 
+/**
+ * Implementation of AES-256 cryptographic algorithm. Use for the decryption thread
+ * 
+ * @author Antonis Kouzoupis
+ *
+ */
 public class AESDecrypt implements Runnable {
 	private static final Logger log = LogManager.getLogger(AESDecrypt.class);
 
@@ -106,11 +112,17 @@ public class AESDecrypt implements Runnable {
 		});
 	}
 
+	/**
+	 * Perform the actual decryption operation.
+	 * 
+	 * @param file File to be decrypted
+	 * @return Decrypted bytes of the file
+	 */
 	private byte[] decrypt(File file) {
 		byte[] plaintext = null;
 		
 		try {
-			log.debug("Decrypting {} bytes file", file.getTotalSpace());
+			log.debug("Decrypting {} bytes file", file.length());
 			byte[] data = fso.readFileContent(file);
 			plaintext = cipher.doFinal(data);			
 		} catch (IOException ex) {
